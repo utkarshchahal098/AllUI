@@ -60,8 +60,11 @@ function Navbar() {
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
-          <Button component={RouterLink} to="/login" variant="contained">
+          <Button component={RouterLink} to="/login" color="inherit">
             Login
+          </Button>
+          <Button component={RouterLink} to="/signup" variant="contained">
+            Sign up
           </Button>
         </Box>
 
@@ -88,6 +91,9 @@ function Navbar() {
             ))}
             <MenuItem component={RouterLink} to="/login" onClick={closeMenu}>
               Login
+            </MenuItem>
+            <MenuItem component={RouterLink} to="/signup" onClick={closeMenu}>
+              Sign up
             </MenuItem>
           </Menu>
         </Box>

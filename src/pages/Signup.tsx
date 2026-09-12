@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import {
   Box,
   Paper,
@@ -10,34 +10,34 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
+  FormHelperText,
   Alert,
   Link,
 } from '@mui/material'
-import { loginSchema } from '../schemas/loginSchema'
-import type { LoginFormValues } from '../schemas/loginSchema'
+import { signupSchema } from '../schemas/signupSchema'
+import type { SignupFormValues } from '../schemas/signupSchema'
 
-function Login() {
+function Signup() {
+  const navigate = useNavigate()
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', rememberMe: false },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { name: '', email: '', password: '', confirmPassword: '', agreeToTerms: false },
     mode: 'onBlur',
   })
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (values: SignupFormValues) => {
     setSubmitError(null)
-    setSubmitSuccess(false)
     try {
-      // TODO: replace with a real auth request
+      // TODO: replace with a real signup request
       await new Promise((resolve) => setTimeout(resolve, 600))
-      console.log('login', values)
-      setSubmitSuccess(true)
+      console.log('signup', values)
+      navigate('/login')
     } catch {
       setSubmitError('Something went wrong. Please try again.')
     }
@@ -47,14 +47,9 @@ function Login() {
     <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
       <Paper sx={{ p: 4, width: '100%', maxWidth: 400 }} variant="outlined">
         <Typography variant="h5" gutterBottom>
-          Login
+          Create an account
         </Typography>
 
-        {submitSuccess && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Signed in successfully.
-          </Alert>
-        )}
         {submitError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {submitError}
@@ -67,6 +62,20 @@ function Login() {
           noValidate
           sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}
         >
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Name"
+                fullWidth
+                error={!!errors.name}
+                helperText={errors.name?.message}
+              />
+            )}
+          />
+
           <Controller
             name="email"
             control={control}
@@ -98,24 +107,44 @@ function Login() {
           />
 
           <Controller
-            name="rememberMe"
+            name="confirmPassword"
             control={control}
-            render={({ field: { value, onChange, ...field } }) => (
-              <FormControlLabel
-                control={<Checkbox {...field} checked={value} onChange={(e) => onChange(e.target.checked)} />}
-                label="Remember me"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Confirm password"
+                type="password"
+                fullWidth
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
               />
             )}
           />
 
+          <Box>
+            <Controller
+              name="agreeToTerms"
+              control={control}
+              render={({ field: { value, onChange, ...field } }) => (
+                <FormControlLabel
+                  control={<Checkbox {...field} checked={value} onChange={(e) => onChange(e.target.checked)} />}
+                  label="I agree to the terms and conditions"
+                />
+              )}
+            />
+            {errors.agreeToTerms && (
+              <FormHelperText error>{errors.agreeToTerms.message}</FormHelperText>
+            )}
+          </Box>
+
           <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in…' : 'Sign in'}
+            {isSubmitting ? 'Creating account…' : 'Sign up'}
           </Button>
 
           <Typography variant="body2" sx={{ textAlign: 'center' }}>
-            Don&apos;t have an account?{' '}
-            <Link component={RouterLink} to="/signup">
-              Sign up
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login">
+              Log in
             </Link>
           </Typography>
         </Box>
@@ -124,4 +153,4 @@ function Login() {
   )
 }
 
-export default Login
+export default Signup
